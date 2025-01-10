@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "lib": ["esnext"],
+    "types": ["google-apps-script"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "*": ["./node_modules/*"]
+    },
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["src/*.ts"],
+  "exclude": ["node_modules"]
+}

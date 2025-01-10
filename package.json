@@ -1,0 +1,15 @@
+{
+  "name": "gas-spreadsheet-csv-joiner-tool",
+  "version": "1.0.0",
+  "description": "Google スプレッドシート上で GAS を使い、CSV を結合ツールです。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/google-apps-script": "^1.0.91"
+  }
+}
