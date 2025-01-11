@@ -96,7 +96,7 @@ function combineCsvFromSheet(): void {
             return;
         }
 
-        writeLog(`--- [${inputFile.getName()}]の読み込み ---`);
+        writeLog(`--- ファイル名: [${inputFile.getName()}], ファイルID: [${inputFile.getId()}] の読み込み ---`);
         writeLog(`開始します。`);
         try {
             processFile(inputFile, combinedData);
@@ -363,7 +363,9 @@ function processFile(inputFile: File, combinedData: string[][]): void {
  */
 function saveCombinedCsv(combinedData: string[][], outputFile: File): void {
     // 結合されたデータをCSVの文字列に変換
-    const csvString: string = combinedData.map((row: string[]) => row.map((cell: string) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csvString: string = combinedData
+        .map((row: string[]): string => row.map((cell: string): string => `"${cell.replace(/"/g, '""')}"`).join(','))
+        .join('\n');
 
     // CSVの文字列をバイナリデータに変換
     const shiftJisBlob: Blob = Utilities.newBlob(csvString, MimeType.CSV);
