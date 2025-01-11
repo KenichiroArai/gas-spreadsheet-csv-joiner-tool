@@ -232,18 +232,6 @@ function getItemIdFromPath(path: string, mimeType: string | null = null, createF
 }
 
 /**
- * URLからフォルダIDを取得する関数
- * @param {string} url - フォルダのURL
- * @returns {string|null} フォルダIDもしくはnull
- */
-function getFolderIdFromUrl(url: string): string | null {
-    let result: string | null = null;
-    const match = url.match(/[-\w]{25,}/);
-    result = match ? match[0] : null;
-    return result;
-}
-
-/**
  * URLからファイルIDを取得する関数
  * @param {string} url - ファイルのURL
  * @returns {string|null} ファイルIDもしくはnull

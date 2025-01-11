@@ -1,25 +1,19 @@
-import globals from 'globals';
-import pluginJs from '@eslint/js';
-import tseslint from '@typescript-eslint/eslint-plugin';
+import { ESLint } from 'eslint';
 import parser from '@typescript-eslint/parser';
-import pluginReact from 'eslint-plugin-react';
+import plugin from '@typescript-eslint/eslint-plugin';
 
-/** @type {import('eslint').Linter.Config[]} */
-export default [
-  { files: ['**/*.{js,mjs,cjs,ts,jsx,tsx}'] },
-  { languageOptions: { globals: globals.browser } },
-  {
-    languageOptions: {
-      parser, // '@typescript-eslint/parser'の設定
-      sourceType: 'module',
-      ecmaVersion: 'latest',
+const eslint = new ESLint({
+    overrideConfig: {
+        parser: parser,
+        plugins: {
+            typescript: plugin,
+        },
+        extends: ['plugin:@typescript-eslint/recommended'],
+        rules: {
+            'no-undef': 'warn',
+            'no-unused-vars': ['warn', { args: 'all', argsIgnorePattern: '^_' }],
+        },
     },
-    rules: {
-      // 未使用の変数や関数をエラーとして表示するルールに変更
-      '@typescript-eslint/no-unused-vars': 'error',
-    },
-  },
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
-];
+});
+
+export default eslint;
