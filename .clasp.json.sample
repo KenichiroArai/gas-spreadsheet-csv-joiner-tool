@@ -1,4 +1,8 @@
 {
   "scriptId": "AppsScriptのスクリプトIDを設定してください",
-  "projectId": "スプレッドシートのプロジェクトIDを設定してください"
+  "projectId": "スプレッドシートのプロジェクトIDを設定してください",
+  "rootDir": "src",
+  "file": {
+      "main.ts": "src/main.ts"
+  }
 }
