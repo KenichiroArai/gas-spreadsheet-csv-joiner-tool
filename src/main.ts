@@ -20,16 +20,22 @@ const DATA_START_ROW: number = 11;
 /** スプレッドシートのセルの最大文字数 */
 const MAX_CELL_LENGTH: number = 50000;
 
-function myFunction() {
+/**
+ * メイン関数。確認ダイアログを表示します。
+ */
+function myFunction(): void {
     showConfirmationDialog();
 }
 
-function showConfirmationDialog() {
+/**
+ * 確認ダイアログを表示し、ユーザーの選択に応じて処理を実行します。
+ */
+function showConfirmationDialog(): void {
     // ダイアログの表示とユーザーの選択の取得
-    var ui: string = Browser.msgBox('確認', 'CSV結合を実行しますか？', Browser.Buttons.YES_NO);
+    const ui: string = Browser.msgBox('確認', 'CSV結合を実行しますか？', Browser.Buttons.YES_NO);
 
     // ユーザーが「はい」を選択した場合の処理
-    if (ui == 'yes') {
+    if (ui === 'yes') {
         // CSV結合操作を実行
         combineCsvFromSheet();
     } else {
@@ -41,8 +47,8 @@ function showConfirmationDialog() {
 /**
  * シートからCSVを結合するメイン関数
  */
-function combineCsvFromSheet() {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+function combineCsvFromSheet(): void {
+    const ss: GoogleAppsScript.Spreadsheet.Spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
     const logSheet: Sheet = ss.getSheetByName(LOG_SHEET_NAME);
 
     /* ログシートをクリア */
@@ -51,7 +57,7 @@ function combineCsvFromSheet() {
     writeLog('---------- CSV結合ツールを開始します。 ----------');
 
     // CSV結合ツールのシートを取得
-    const sheet = ss.getSheetByName(TOOL_SHEET_NAME);
+    const sheet: Sheet = ss.getSheetByName(TOOL_SHEET_NAME);
 
     /* 出力情報を取得 */
     writeLog('----- 出力情報を取得します。 -----');
@@ -67,9 +73,9 @@ function combineCsvFromSheet() {
 
     /* 入力情報を取得 */
     writeLog('----- 入力情報を取得します。 -----');
-    let inputInfos: string[] = [];
-    const lastRow = sheet.getLastRow();
-    for (let i = DATA_START_ROW; i <= lastRow; i++) {
+    const inputInfos: string[] = [];
+    const lastRow: number = sheet.getLastRow();
+    for (let i: number = DATA_START_ROW; i <= lastRow; i++) {
         const inputInfo: string = sheet.getRange(i, 1).getValue();
         if (inputInfo === 'Unknown') {
             writeLog(`[${inputInfo}]はファイルではありません。`);
@@ -81,10 +87,10 @@ function combineCsvFromSheet() {
 
     /* 入力情報を結合する */
     writeLog('----- 入力情報を結合します。 -----');
-    let combinedData: string[][] = [];
+    const combinedData: string[][] = [];
     for (const inputInfo of inputInfos) {
         // 入力ファイルIDを取得
-        let inputFile: File | undefined = getFile(inputInfo, MimeType.CSV);
+        const inputFile: File | undefined = getFile(inputInfo, MimeType.CSV);
         if (!inputFile) {
             writeLog(`[${inputInfo}]からファイルを取得できませんでした。`);
             return;
@@ -94,7 +100,7 @@ function combineCsvFromSheet() {
         writeLog(`開始します。`);
         try {
             processFile(inputFile, combinedData);
-        } catch (error) {
+        } catch (error: any) {
             writeLog('エラーが発生しました: ' + error.message);
         }
         writeLog(`終了しました。`);
@@ -105,7 +111,7 @@ function combineCsvFromSheet() {
     writeLog('開始します。');
     try {
         saveCombinedCsv(combinedData, outputFile);
-    } catch (error) {
+    } catch (error: any) {
         writeLog('CSVファイルの保存中にエラーが発生しました: ' + error.message);
     }
     writeLog('終了しました。');
@@ -115,12 +121,12 @@ function combineCsvFromSheet() {
 /**
  * ログ書き込み関数
  * 指定されたメッセージをログシートに書き込みます。
- * @param {string} message - ログメッセージ
+ * @param message - ログメッセージ
  */
-function writeLog(message: string) {
+function writeLog(message: string): void {
     console.log(message);
 
-    const logSheet: GoogleAppsScript.Spreadsheet.Sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LOG_SHEET_NAME);
+    const logSheet: Sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(LOG_SHEET_NAME);
     let lastRow: number = logSheet.getLastRow();
 
     while (message.length > MAX_CELL_LENGTH) {
@@ -135,10 +141,10 @@ function writeLog(message: string) {
 /**
  * 指定されたパスに基づいてファイルまたはフォルダのIDを取得します。
  *
- * @param {string} path - ファイルまたはフォルダのパスを '/' で区切った文字列。
- * @param {string|null} mimeType - ファイルのMIMEタイプ。デフォルトはnull。nullの場合はMIMEタイプをチェックせず、最初に見つかったファイルまたはフォルダのIDを返す。
- * @param {boolean} createFile - ファイルが見つからない場合に新規ファイルを作成するかどうか。デフォルトはfalse。
- * @returns {string|undefined} - 指定されたパスに対応するファイルまたはフォルダのID。見つからない場合は undefined。
+ * @param path - ファイルまたはフォルダのパスを '/' で区切った文字列。
+ * @param mimeType - ファイルのMIMEタイプ。デフォルトはnull。nullの場合はMIMEタイプをチェックせず、最初に見つかったファイルまたはフォルダのIDを返す。
+ * @param createFile - ファイルが見つからない場合に新規ファイルを作成するかどうか。デフォルトはfalse。
+ * @returns 指定されたパスに対応するファイルまたはフォルダのID。見つからない場合は undefined。
  */
 function getItemIdFromPath(path: string, mimeType: string | null = null, createFile: boolean = false): string | undefined {
     // 結果を初期化
@@ -149,26 +155,24 @@ function getItemIdFromPath(path: string, mimeType: string | null = null, createF
 
     // パスを個々のフォルダ名とファイル名に分割
     path = path.substring(1);
-    let pathItems: string[] = path.split('/');
+    const pathItems: string[] = path.split('/');
 
     // パス内の各アイテムを順に処理
-    for (let pathItem of pathItems) {
+    for (const pathItem of pathItems) {
         // パスアイテムのUnicode正規化を行い、文字コードを統一
-        pathItem = pathItem.normalize('NFC');
+        const normalizedPathItem: string = pathItem.normalize('NFC');
 
         // 現在のパスアイテムのIDを格納する変数
         let targetId: string | undefined = undefined;
 
         // 現在のフォルダ内のサブフォルダを確認
-        let folders: FolderIterator = DriveApp.getFolderById(targetFolder.getId()).getFolders();
+        const folders: FolderIterator = DriveApp.getFolderById(targetFolder.getId()).getFolders();
         while (folders.hasNext()) {
             const folder: Folder = folders.next();
-            if (folder.getName() !== pathItem) {
-                // フォルダ名が一致しない場合は次のフォルダに進む
-                continue;
+            if (folder.getName() === normalizedPathItem) {
+                targetId = folder.getId();
+                break;
             }
-            targetId = folder.getId();
-            break;
         }
 
         // サブフォルダに一致するものが見つからないか
@@ -206,14 +210,14 @@ function getItemIdFromPath(path: string, mimeType: string | null = null, createF
         // IDが取得できなかったか
         if (targetId === undefined) {
             // 出来なかった場合
-
-            writeLog(`ファイル名:[${pathItem}]は見つかりませんでした。`);
+            writeLog(`ファイル名:[${normalizedPathItem}]は見つかりませんでした。`);
 
             if (createFile) {
                 // 新規ファイルを作成する場合
-
                 // ターゲットフォルダの配下にパス項目のファイルを作成する
-                const newFile: File = mimeType ? targetFolder.createFile(pathItem, '', mimeType) : targetFolder.createFile(pathItem, '');
+                const newFile: File = mimeType
+                    ? targetFolder.createFile(normalizedPathItem, '', mimeType)
+                    : targetFolder.createFile(normalizedPathItem, '');
                 // 新規ファイルのIDを取得
                 targetId = newFile.getId();
                 result = targetId;
@@ -233,13 +237,15 @@ function getItemIdFromPath(path: string, mimeType: string | null = null, createF
 
 /**
  * URLからファイルIDを取得する関数
- * @param {string} url - ファイルのURL
- * @returns {string|null} ファイルIDもしくはnull
+ * @param url - ファイルのURL
+ * @returns ファイルIDもしくはnull
  */
 function getFileIdFromUrl(url: string): string | null {
     let result: string | null = null;
-    const match = url.match(/[-\w]{25,}/);
-    result = match ? match[0] : null;
+    const match: RegExpMatchArray | null = url.match(/[-\w]{25,}/);
+    if (match) {
+        result = match[0];
+    }
     return result;
 }
 
@@ -254,7 +260,7 @@ function getFileIdFromUrl(url: string): string | null {
  * - パスの場合は "Path"
  * - 値が文字列でない場合は "Unknown"
  */
-function determineFileInfo(value: string): string {
+function determineFileInfo(value: any): string {
     let result: string = 'Unknown';
 
     // 文字列でないか
@@ -290,7 +296,7 @@ function getFile(fileInfo: string, mimeType: string | null = null, createFile: b
     let result: File | undefined = undefined;
 
     let fileId: string | undefined = undefined;
-    let fileInfoType = determineFileInfo(fileInfo);
+    const fileInfoType: string = determineFileInfo(fileInfo);
     writeLog(`ファイル情報：[${fileInfo}], 種類：[${fileInfoType}]`);
     switch (fileInfoType) {
         case 'Unknown':
@@ -318,42 +324,46 @@ function getFile(fileInfo: string, mimeType: string | null = null, createFile: b
     }
 
     // ファイルIDからファイルオブジェクトを取得
-    result = DriveApp.getFileById(fileId);
+    try {
+        result = DriveApp.getFileById(fileId);
+    } catch (e: any) {
+        writeLog(`ファイルID [${fileId}] の取得に失敗しました: ${e}`);
+    }
     return result;
 }
 
 /**
  * CSVファイルを読み込んでデータを結合する処理
- * @param {File} inputFile - 入力ファイルオブジェクト
- * @param {Array} combinedData - 結合されたデータの配列
+ * @param inputFile - 入力ファイルオブジェクト
+ * @param combinedData - 結合されたデータの配列
  */
-function processFile(inputFile: File, combinedData: string[][]) {
-    const mimeType = inputFile.getMimeType();
+function processFile(inputFile: File, combinedData: string[][]): void {
+    const mimeType: string = inputFile.getMimeType();
 
     if (mimeType !== MimeType.CSV) {
         throw new Error(`ファイルはCSVではありません。MIMEタイプ: ${mimeType}`);
     }
 
-    const csvData = inputFile.getBlob().getDataAsString('Shift_JIS');
-    const parsedCsv = Utilities.parseCsv(csvData);
+    const csvData: string = inputFile.getBlob().getDataAsString('Shift_JIS');
+    const parsedCsv: string[][] = Utilities.parseCsv(csvData);
 
     if (combinedData.length === 0 && parsedCsv.length > 0) {
         combinedData.push(parsedCsv[0]);
     }
 
-    for (let i = 1; i < parsedCsv.length; i++) {
+    for (let i: number = 1; i < parsedCsv.length; i++) {
         combinedData.push(parsedCsv[i]);
     }
 }
 
 /**
  * 結合されたデータをCSVファイルとして保存する関数
- * @param {Array} combinedData - 結合されたデータの配列
- * @param {File} outputFile - 保存先のフォルダ
+ * @param combinedData - 結合されたデータの配列
+ * @param outputFile - 保存先のファイルオブジェクト
  */
-function saveCombinedCsv(combinedData: string[][], outputFile: File) {
+function saveCombinedCsv(combinedData: string[][], outputFile: File): void {
     // 結合されたデータをCSVの文字列に変換
-    const csvString: string = combinedData.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csvString: string = combinedData.map((row: string[]) => row.map((cell: string) => `"${cell.replace(/"/g, '""')}"`).join(',')).join('\n');
 
     // CSVの文字列をバイナリデータに変換
     const shiftJisBlob: Blob = Utilities.newBlob(csvString, MimeType.CSV);
