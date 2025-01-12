@@ -56,6 +56,8 @@ function combineCsvFromSheet(): void {
 
     writeLog('---------- CSV結合ツールを開始します。 ----------');
 
+    let hasError: boolean = false; // エラーがあるかどうか
+    let hasWarning: boolean = false; // 警告があるかどうか
     try {
         // CSV結合ツールのシートを取得
         const sheet: Sheet = ss.getSheetByName(TOOL_SHEET_NAME);
@@ -67,6 +69,7 @@ function combineCsvFromSheet(): void {
         const outputFile: File | undefined = getFile(outputInfo, MimeType.CSV, true);
         if (!outputFile) {
             writeLog('出力情報からファイルを取得できませんでした。');
+            hasError = true;
             return;
         }
         writeLog(`出力ファイル名：[${outputFile.getName()}], ID：[${outputFile.getId()}]`);
@@ -94,7 +97,8 @@ function combineCsvFromSheet(): void {
             const inputFile: File | undefined = getFile(inputInfo, MimeType.CSV);
             if (!inputFile) {
                 writeLog(`[${inputInfo}]からファイルを取得できませんでした。`);
-                return;
+                hasWarning = true;
+                continue;
             }
 
             writeLog(`--- ファイル名: [${inputFile.getName()}], ファイルID: [${inputFile.getId()}] の読み込み ---`);
@@ -103,6 +107,8 @@ function combineCsvFromSheet(): void {
                 processFile(inputFile, combinedData);
             } catch (error: any) {
                 writeLog('エラーが発生しました: ' + error.message);
+                hasWarning = true;
+                continue;
             }
             writeLog(`終了しました。`);
         }
@@ -114,10 +120,23 @@ function combineCsvFromSheet(): void {
             saveCombinedCsv(combinedData, outputFile);
         } catch (error: any) {
             writeLog('CSVファイルの保存中にエラーが発生しました: ' + error.message);
+            hasError = true;
+            return;
         }
         writeLog('終了しました。');
     } finally {
         writeLog('---------- CSV結合ツールが全て終了しました。 ----------');
+
+        // 成功/警告/失敗のダイアログ表示
+        if (hasError) {
+            Browser.msgBox('失敗', 'CSVの結合に失敗しました。ログを確認してください。', Browser.Buttons.OK);
+            return;
+        }
+        if (hasWarning) {
+            Browser.msgBox('警告', 'CSVの結合に警告がありました。ログを確認してください。', Browser.Buttons.OK);
+            return;
+        }
+        Browser.msgBox('成功', 'CSVの結合に成功しました。', Browser.Buttons.OK);
     }
 }
 
