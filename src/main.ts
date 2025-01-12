@@ -56,66 +56,69 @@ function combineCsvFromSheet(): void {
 
     writeLog('---------- CSV結合ツールを開始します。 ----------');
 
-    // CSV結合ツールのシートを取得
-    const sheet: Sheet = ss.getSheetByName(TOOL_SHEET_NAME);
+    try {
+        // CSV結合ツールのシートを取得
+        const sheet: Sheet = ss.getSheetByName(TOOL_SHEET_NAME);
 
-    /* 出力情報を取得 */
-    writeLog('----- 出力情報を取得します。 -----');
-    const outputInfo: string = sheet.getRange(OUTPUT_INFO_CELL).getValue();
-    // 出力ファイルIDを取得する。出力ファイルが無い場合は、新規ファイルを作成する。
-    const outputFile: File | undefined = getFile(outputInfo, MimeType.CSV, true);
-    if (!outputFile) {
-        writeLog('出力情報からファイルを取得できませんでした。');
-        return;
-    }
-    writeLog(`出力ファイル名：[${outputFile.getName()}], ID：[${outputFile.getId()}]`);
-    writeLog('----- 出力情報を取得しました。 -----');
-
-    /* 入力情報を取得 */
-    writeLog('----- 入力情報を取得します。 -----');
-    const inputInfos: string[] = [];
-    const lastRow: number = sheet.getLastRow();
-    for (let i: number = DATA_START_ROW; i <= lastRow; i++) {
-        const inputInfo: string = sheet.getRange(i, 1).getValue();
-        if (inputInfo === 'Unknown') {
-            writeLog(`[${inputInfo}]はファイルではありません。`);
-            continue;
-        }
-        inputInfos.push(inputInfo);
-    }
-    writeLog('----- 入力情報を取得しました。 -----');
-
-    /* 入力情報を結合する */
-    writeLog('----- 入力情報を結合します。 -----');
-    const combinedData: string[][] = [];
-    for (const inputInfo of inputInfos) {
-        // 入力ファイルIDを取得
-        const inputFile: File | undefined = getFile(inputInfo, MimeType.CSV);
-        if (!inputFile) {
-            writeLog(`[${inputInfo}]からファイルを取得できませんでした。`);
+        /* 出力情報を取得 */
+        writeLog('----- 出力情報を取得します。 -----');
+        const outputInfo: string = sheet.getRange(OUTPUT_INFO_CELL).getValue();
+        // 出力ファイルIDを取得する。出力ファイルが無い場合は、新規ファイルを作成する。
+        const outputFile: File | undefined = getFile(outputInfo, MimeType.CSV, true);
+        if (!outputFile) {
+            writeLog('出力情報からファイルを取得できませんでした。');
             return;
         }
+        writeLog(`出力ファイル名：[${outputFile.getName()}], ID：[${outputFile.getId()}]`);
+        writeLog('----- 出力情報を取得しました。 -----');
 
-        writeLog(`--- ファイル名: [${inputFile.getName()}], ファイルID: [${inputFile.getId()}] の読み込み ---`);
-        writeLog(`開始します。`);
-        try {
-            processFile(inputFile, combinedData);
-        } catch (error: any) {
-            writeLog('エラーが発生しました: ' + error.message);
+        /* 入力情報を取得 */
+        writeLog('----- 入力情報を取得します。 -----');
+        const inputInfos: string[] = [];
+        const lastRow: number = sheet.getLastRow();
+        for (let i: number = DATA_START_ROW; i <= lastRow; i++) {
+            const inputInfo: string = sheet.getRange(i, 1).getValue();
+            if (inputInfo === 'Unknown') {
+                writeLog(`[${inputInfo}]はファイルではありません。`);
+                continue;
+            }
+            inputInfos.push(inputInfo);
         }
-        writeLog(`終了しました。`);
-    }
-    writeLog('----- 入力情報を結合しました。 -----');
+        writeLog('----- 入力情報を取得しました。 -----');
 
-    writeLog(`----- 出力ファイル[${outputFile.getName()}]の出力 -----`);
-    writeLog('開始します。');
-    try {
-        saveCombinedCsv(combinedData, outputFile);
-    } catch (error: any) {
-        writeLog('CSVファイルの保存中にエラーが発生しました: ' + error.message);
+        /* 入力情報を結合する */
+        writeLog('----- 入力情報を結合します。 -----');
+        const combinedData: string[][] = [];
+        for (const inputInfo of inputInfos) {
+            // 入力ファイルIDを取得
+            const inputFile: File | undefined = getFile(inputInfo, MimeType.CSV);
+            if (!inputFile) {
+                writeLog(`[${inputInfo}]からファイルを取得できませんでした。`);
+                return;
+            }
+
+            writeLog(`--- ファイル名: [${inputFile.getName()}], ファイルID: [${inputFile.getId()}] の読み込み ---`);
+            writeLog(`開始します。`);
+            try {
+                processFile(inputFile, combinedData);
+            } catch (error: any) {
+                writeLog('エラーが発生しました: ' + error.message);
+            }
+            writeLog(`終了しました。`);
+        }
+        writeLog('----- 入力情報を結合しました。 -----');
+
+        writeLog(`----- 出力ファイル[${outputFile.getName()}]の出力 -----`);
+        writeLog('開始します。');
+        try {
+            saveCombinedCsv(combinedData, outputFile);
+        } catch (error: any) {
+            writeLog('CSVファイルの保存中にエラーが発生しました: ' + error.message);
+        }
+        writeLog('終了しました。');
+    } finally {
+        writeLog('---------- CSV結合ツールが全て終了しました。 ----------');
     }
-    writeLog('終了しました。');
-    writeLog('---------- CSV結合ツールが全て終了しました。 ----------');
 }
 
 /**
