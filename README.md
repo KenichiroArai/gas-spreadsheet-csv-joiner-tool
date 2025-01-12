@@ -1,4 +1,4 @@
-# gas-spreadsheet-csv-joiner-tool
+# CSV 結合ツール GAS 用
 
 ## 開発環境の構築
 
@@ -16,7 +16,8 @@ npm install
 
 ### Google スプレッドシートのコピー
 
-spreadsheet/CSV 結合ツール.xlsx をコピーして、ファイルを開き Google スプレッドシートを作成する。
+spreadsheet/CSV 結合ツール.xlsx をコピーして、ファイルを開きます。
+「ファイル」→「Google スプレッドシートとして保存」をクリックして、Google スプレッドシートを作成する。
 
 ### ログイン
 
